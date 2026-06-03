@@ -13,7 +13,9 @@
       <a class="brand" href="/">
         <img src="/static/logo-header.jpg" alt="Pixeloff" class="brand-logo" width="131" height="40">
       </a>
-      <nav class="nav">
+
+      <!-- Десктоп навигация -->
+      <nav class="nav nav-desktop">
         <a href="/" class="{% block nav_home %}{% endblock %}">Главная</a>
         <a href="/tariffs" class="{% block nav_tariffs %}{% endblock %}">Тарифы</a>
         {% if user %}
@@ -23,6 +25,27 @@
         {% else %}
           <a href="/login">Войти</a>
           <a class="btn btn-sm btn-outline" href="/register">Регистрация</a>
+        {% endif %}
+      </nav>
+
+      <!-- Бургер кнопка (только мобиле) -->
+      <button class="burger" id="burger" aria-label="Меню" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Мобильное меню -->
+    <div class="nav-mobile" id="nav-mobile">
+      <nav>
+        <a href="/">Главная</a>
+        <a href="/tariffs">Тарифы</a>
+        {% if user %}
+          <a href="/dashboard">Кабинет</a>
+          {% if user.is_admin %}<a href="/admin">Админка</a>{% endif %}
+          <a href="/logout">Выйти</a>
+        {% else %}
+          <a href="/login">Войти</a>
+          <a href="/register">Регистрация</a>
         {% endif %}
       </nav>
     </div>

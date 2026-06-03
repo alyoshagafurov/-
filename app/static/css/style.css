@@ -38,19 +38,60 @@ a:hover { text-decoration: underline; }
 .site-header {
   border-bottom: 1px solid var(--line);
   background: var(--bg);
-  position: sticky; top: 0; z-index: 10;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,.06);
 }
 .site-header .container {
   display: flex; align-items: center; justify-content: space-between;
-  height: 60px;
+  height: 64px;
 }
-.brand { font-weight: 700; font-size: 20px; color: var(--fg); display: flex; align-items: center; gap: 8px; }
-.brand .dot { width: 14px; height: 14px; border-radius: 4px; background: var(--accent); display: inline-block; }
+.brand { display: flex; align-items: center; text-decoration: none; }
+.brand:hover { text-decoration: none; }
 .brand-logo { height: 40px; width: 131px; display: block; object-fit: contain; }
-.nav { display: flex; align-items: center; gap: 20px; }
-.nav a { color: var(--muted); font-size: 15px; }
-.nav a:hover { color: var(--fg); text-decoration: none; }
-.nav a.active { color: var(--fg); font-weight: 600; }
+
+/* Десктоп nav */
+.nav-desktop { display: flex; align-items: center; gap: 24px; }
+.nav-desktop a { color: var(--muted); font-size: 15px; font-weight: 500; transition: color .15s; }
+.nav-desktop a:hover { color: var(--fg); text-decoration: none; }
+.nav-desktop a.active { color: var(--fg); font-weight: 700; }
+
+/* Бургер */
+.burger {
+  display: none; flex-direction: column; justify-content: center;
+  gap: 5px; padding: 6px; background: none; border: none; cursor: pointer;
+  width: 40px; height: 40px; border-radius: 8px; transition: background .15s;
+}
+.burger:hover { background: var(--soft); }
+.burger span {
+  display: block; height: 2px; background: var(--fg);
+  border-radius: 2px; transition: transform .3s, opacity .3s, width .3s;
+  transform-origin: center;
+}
+.burger span:nth-child(1) { width: 24px; }
+.burger span:nth-child(2) { width: 18px; }
+.burger span:nth-child(3) { width: 24px; }
+.burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); width: 24px; }
+.burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); width: 24px; }
+
+/* Мобильное меню */
+.nav-mobile {
+  display: none; overflow: hidden;
+  max-height: 0; transition: max-height .35s ease, padding .35s ease;
+  background: var(--bg); border-top: 1px solid var(--line);
+}
+.nav-mobile.open { max-height: 400px; }
+.nav-mobile nav {
+  display: flex; flex-direction: column;
+  padding: 8px 0 12px;
+}
+.nav-mobile nav a {
+  padding: 13px 20px; color: var(--fg); font-size: 16px; font-weight: 500;
+  border-bottom: 1px solid var(--line); transition: background .15s;
+  text-decoration: none;
+}
+.nav-mobile nav a:last-child { border-bottom: none; }
+.nav-mobile nav a:hover { background: var(--soft); text-decoration: none; }
 
 /* ── Buttons ── */
 .btn {
@@ -212,11 +253,12 @@ p code, td code, li code { background: var(--soft); padding: 2px 6px; border-rad
 @media (max-width: 768px) {
   .container { padding: 0 16px; }
 
-  /* Header: лого + бургер-стиль навигация */
-  .site-header .container { height: 56px; flex-wrap: wrap; }
+  /* Header */
+  .site-header .container { height: 56px; }
   .brand-logo { height: 32px; width: auto; }
-  .nav { gap: 12px; }
-  .nav a { font-size: 13px; }
+  .nav-desktop { display: none; }
+  .burger { display: flex; }
+  .nav-mobile { display: block; }
   .btn-sm { padding: 5px 10px; font-size: 12px; }
 
   /* Hero */
@@ -268,14 +310,9 @@ p code, td code, li code { background: var(--soft); padding: 2px 6px; border-rad
 @media (max-width: 480px) {
   .container { padding: 0 12px; }
 
-  /* Header: навигация переносится, ссылки уменьшаются */
-  .site-header .container {
-    height: auto; min-height: 52px;
-    flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; gap: 6px;
-  }
+  /* Header */
+  .site-header .container { height: 52px; }
   .brand-logo { height: 28px; width: auto; }
-  .nav { width: 100%; justify-content: center; gap: 8px; flex-wrap: wrap; }
-  .nav a { font-size: 12px; }
   .btn-sm { padding: 4px 8px; font-size: 11px; }
 
   /* Hero */

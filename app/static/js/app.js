@@ -1,6 +1,33 @@
 "use strict";
 
-// ── 0. Info-tabs (кнопки-секции) ──────────────────────────
+// ── 0. Burger menu ────────────────────────────────────────
+const burger = document.getElementById("burger");
+const navMobile = document.getElementById("nav-mobile");
+if (burger && navMobile) {
+  burger.addEventListener("click", () => {
+    const isOpen = navMobile.classList.toggle("open");
+    burger.classList.toggle("open", isOpen);
+    burger.setAttribute("aria-expanded", isOpen);
+  });
+  // закрыть при клике на ссылку
+  navMobile.querySelectorAll("a").forEach((a) => {
+    a.addEventListener("click", () => {
+      navMobile.classList.remove("open");
+      burger.classList.remove("open");
+      burger.setAttribute("aria-expanded", "false");
+    });
+  });
+  // закрыть при клике вне меню
+  document.addEventListener("click", (e) => {
+    if (!burger.contains(e.target) && !navMobile.contains(e.target)) {
+      navMobile.classList.remove("open");
+      burger.classList.remove("open");
+      burger.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
+// ── 1. Info-tabs (кнопки-секции) ──────────────────────────
 document.querySelectorAll("[data-info-toggle]").forEach((btn) => {
   btn.addEventListener("click", () => {
     btn.closest(".info-tab").classList.toggle("open");
