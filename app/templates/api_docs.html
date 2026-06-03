@@ -17,18 +17,18 @@
 
   <div class="card" style="margin-bottom:20px">
     <h3>Параметры запроса</h3>
-    <table>
+    <div class="table-wrap"><table>
       <thead><tr><th>Параметр</th><th>Описание</th></tr></thead>
       <tbody>
         <tr><td><code>k</code></td><td><b>Ключ доступа.</b> Укажите ваш ключ доступа. Для работы API ключ должен иметь положительный баланс.</td></tr>
         <tr><td><code>u</code></td><td><b>URL объявления.</b> Ссылка на объявление. Рекомендуется использовать <code>urlencode</code>.</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <div class="card" style="margin-bottom:20px">
     <h3>Данные ответа</h3>
-    <table>
+    <div class="table-wrap"><table>
       <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
       <tbody>
         <tr><td><code>status</code></td><td>string</td><td>Статус обработки: <code>searching</code> — поиск; <code>processed XX%</code> — обработка; <code>done</code> — завершено; <code>error</code> — ошибка.</td></tr>
@@ -42,7 +42,7 @@
         <tr><td><code>photos</code></td><td>array</td><td>Массив очищенных фотографий.</td></tr>
         <tr><td><code>balance</code></td><td>integer</td><td>Ваш баланс (остаток объявлений).</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <div class="card" style="margin-bottom:20px">
@@ -122,7 +122,7 @@ if ($json-&gt;status == 'done') {
 
   <div class="card" style="margin-bottom:20px">
     <h3>Таблица ошибок</h3>
-    <table>
+    <div class="table-wrap"><table>
       <thead><tr><th>Код</th><th>Описание</th><th>Вычет</th></tr></thead>
       <tbody>
         <tr><td><code>101</code></td><td>Не указан ваш ключ, в параметре 'k'</td><td>нет</td></tr>
@@ -139,7 +139,7 @@ if ($json-&gt;status == 'done') {
         <tr><td><code>500</code></td><td>Технические неполадки. Повторите позднее...</td><td>нет</td></tr>
         <tr><td><code>501</code></td><td>Технические неполадки с обработкой данного источника</td><td>нет</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <div class="card soft">
