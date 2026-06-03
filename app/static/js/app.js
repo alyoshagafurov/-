@@ -165,13 +165,12 @@ document.querySelectorAll("[data-process]").forEach((root) => {
   if (jobsBody) {
     window.__reloadJobs = async () => {
       const { ok, data } = await api("/api/jobs");
-      if (!ok) { jobsBody.innerHTML = `<tr><td colspan="6" class="muted">Ошибка загрузки</td></tr>`; return; }
-      if (!data.length) { jobsBody.innerHTML = `<tr><td colspan="6" class="muted">Пока нет обработок</td></tr>`; return; }
+      if (!ok) { jobsBody.innerHTML = `<tr><td colspan="5" class="muted">Ошибка загрузки</td></tr>`; return; }
+      if (!data.length) { jobsBody.innerHTML = `<tr><td colspan="5" class="muted">Пока нет обработок</td></tr>`; return; }
       jobsBody.innerHTML = data.map((j) => `
         <tr>
           <td>${j.id}</td>
-          <td>${escapeHtml((j.title || j.url).slice(0, 60))}</td>
-          <td>${escapeHtml(j.source)}</td>
+          <td>${escapeHtml((j.title || j.url).slice(0, 50))}</td>
           <td>${j.photo_count || ""}</td>
           <td>${statusBadge(j.status)}</td>
           <td>${j.status === "done"
