@@ -217,9 +217,9 @@ document.querySelectorAll("[data-process]").forEach((root) => {
 
 // ── 5. Admin ───────────────────────────────────────────────
 (() => {
-  const usersBody = document.querySelector("[data-users-body]");
-  const tariffsBody = document.querySelector("[data-tariffs-body]");
-  if (!usersBody && !tariffsBody) return;
+  const usersList = document.querySelector("[data-users-list]");
+  const tariffsList = document.querySelector("[data-tariffs-list]");
+  if (!usersList && !tariffsList) return;
 
   // tabs
   document.querySelectorAll(".tab").forEach((tab) => {
@@ -237,8 +237,8 @@ document.querySelectorAll("[data-process]").forEach((root) => {
     if (ok) tariffsCache = data;
   };
 
-  // ── Users ──
-  if (usersBody) {
+  // ── Users (карточки) ──
+  if (usersList) {
     const searchInput = document.querySelector("[data-user-search]");
     const searchBtn = document.querySelector("[data-user-search-btn]");
     const detail = document.querySelector("[data-user-detail]");
@@ -246,35 +246,43 @@ document.querySelectorAll("[data-process]").forEach((root) => {
     const loadUsers = async (q = "") => {
       const { ok, data } = await api("/api/admin/users?q=" + encodeURIComponent(q));
       if (!ok) return;
-      if (!data.length) { usersBody.innerHTML = '<tr><td colspan="4" class="muted">Никого не найдено</td></tr>'; return; }
-      usersBody.innerHTML = data.map((u) => `
-        <tr data-uid="${u.id}">
-          <td>${escapeHtml(u.email)}${u.is_admin ? ' <span class="badge badge-processing">admin</span>' : ""}</td>
-          <td>${u.tariff ? escapeHtml(u.tariff) : "—"}</td>
-          <td>${u.remaining === null ? "∞" : u.remaining}</td>
-          <td>${u.is_active
-                ? (u.access_active ? '<span class="badge badge-done">активен</span>'
-                                   : '<span class="badge badge-off">нет доступа</span>')
-                : '<span class="badge badge-error">заблок.</span>'}</td>
-        </tr>`).join("");
-      usersBody.querySelectorAll("tr[data-uid]").forEach((tr) =>
-        tr.addEventListener("click", () => openUser(tr.getAttribute("data-uid"))));
+      if (!data.length) { usersList.innerHTML = '<p class="muted">Никого не найдено</p>'; return; }
+      usersList.innerHTML = data.map((u) => `
+        <div class="user-card" data-uid="${u.id}">
+          <div class="user-card-info">
+            <div class="email">${escapeHtml(u.email)}${u.is_admin ? ' <span class="badge badge-processing">admin</span>' : ""}</div>
+            <div class="meta">${u.tariff ? escapeHtml(u.tariff) : "нет тарифа"} · ${u.is_active
+              ? (u.access_active ? '<span style="color:var(--ok)">активен</span>' : '<span>нет доступа</span>')
+              : '<span style="color:var(--danger)">заблок.</span>'}</div>
+          </div>
+          <div class="user-card-right">
+            <div class="remaining">${u.remaining === null ? "∞" : u.remaining}</div>
+            <div class="muted" style="font-size:11px">осталось</div>
+          </div>
+        </div>`).join("");
+      usersList.querySelectorAll("[data-uid]").forEach((card) =>
+        card.addEventListener("click", () => {
+          usersList.querySelectorAll(".user-card").forEach((c) => c.classList.remove("selected"));
+          card.classList.add("selected");
+          openUser(card.getAttribute("data-uid"));
+        }));
     };
 
     const openUser = async (id) => {
       const { ok, data } = await api("/api/admin/users/" + id);
       if (!ok) return;
       renderUser(detail, data, loadUsers, tariffsCache);
+      // на мобиле скролл к деталям
+      if (window.innerWidth <= 768) detail.scrollIntoView({ behavior: "smooth", block: "start" });
     };
 
     searchBtn.addEventListener("click", () => loadUsers(searchInput.value));
     searchInput.addEventListener("keydown", (e) => { if (e.key === "Enter") loadUsers(searchInput.value); });
-
     refreshTariffsCache().then(loadUsers);
   }
 
-  // ── Tariffs CRUD ──
-  if (tariffsBody) {
+  // ── Tariffs CRUD (карточки) ──
+  if (tariffsList) {
     const f = {
       id: document.querySelector("[data-tariff-id]"),
       name: document.querySelector("[data-tariff-name]"),
@@ -292,18 +300,18 @@ document.querySelectorAll("[data-process]").forEach((root) => {
       const { ok, data } = await api("/api/admin/tariffs");
       if (!ok) return;
       tariffsCache = data;
-      tariffsBody.innerHTML = data.length
+      tariffsList.innerHTML = data.length
         ? data.map((t) => `
-          <tr data-tid="${t.id}">
-            <td>${escapeHtml(t.name)}${t.is_active ? "" : ' <span class="badge badge-off">выкл</span>'}</td>
-            <td>${t.price} ₽</td>
-            <td>${t.limit_count === 0 ? "∞" : t.limit_count}</td>
-            <td>${t.duration_days}</td>
-            <td><button class="btn btn-ghost btn-sm" data-edit="${t.id}">✎</button></td>
-          </tr>`).join("")
-        : '<tr><td colspan="5" class="muted">Тарифов пока нет</td></tr>';
-      tariffsBody.querySelectorAll("[data-edit]").forEach((b) =>
-        b.addEventListener("click", () => fillForm(data.find((x) => x.id == b.getAttribute("data-edit")))));
+          <div class="tariff-card" data-edit="${t.id}">
+            <div>
+              <div class="name">${escapeHtml(t.name)}${t.is_active ? "" : ' <span class="badge badge-off">выкл</span>'}</div>
+              <div class="details">${t.limit_count === 0 ? "безлимит" : t.limit_count + " обработок"} · ${t.duration_days} дн.</div>
+            </div>
+            <div style="font-weight:700;font-size:16px;color:var(--accent)">${t.price} ₽</div>
+          </div>`).join("")
+        : '<p class="muted">Тарифов пока нет</p>';
+      tariffsList.querySelectorAll("[data-edit]").forEach((card) =>
+        card.addEventListener("click", () => fillForm(data.find((x) => x.id == card.getAttribute("data-edit")))));
     };
 
     const clearForm = () => {
