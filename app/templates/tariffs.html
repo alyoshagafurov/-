@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Тарифы — Pixeloff{% endblock %}
+{% block nav_tariffs %}active{% endblock %}
+
+{% block content %}
+<section class="hero" style="padding-bottom:10px">
+  <h1>Тарифы и доступ</h1>
+  <p>Выберите подходящий объём обработок. Доступ выдаётся администратором после оплаты.</p>
+</section>
+
+<section class="section">
+  <div class="tariffs" data-tariffs>
+    <p class="muted">Загрузка тарифов…</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="card soft">
+    <h2>Калькулятор</h2>
+    <div class="row">
+      <select class="field" data-calc-tariff style="max-width:240px; margin:0"></select>
+      <div data-calc-result class="muted">Выберите тариф</div>
+    </div>
+  </div>
+</section>
+{% endblock %}

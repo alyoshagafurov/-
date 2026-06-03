@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}API документация — Pixeloff{% endblock %}
+
+{% block content %}
+<section class="section">
+  <h1>API, интеграция</h1>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3>Ссылка на API</h3>
+    <pre><code>https://pixeloff.ru/api/v2.php?k=вашключ&amp;u=ссылканаобъявление</code></pre>
+    <p>При первом запросе API запускается обработка (<code>status=searching</code>) объявления, указанного
+       в параметре <code>u</code>. При последующих запросах к API с теми же параметрами обработка уже не инициируется,
+       а просто выводится результат действующей обработки.</p>
+    <p>Пока идёт обработка (очистка фото), будет возвращаться <code>status=processed</code>, когда обработка
+       завершится — <code>status</code> примет значение <code>done</code> и станут доступны ссылки на очищенные фото.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3>Параметры запроса</h3>
+    <table>
+      <thead><tr><th>Параметр</th><th>Описание</th></tr></thead>
+      <tbody>
+        <tr><td><code>k</code></td><td><b>Ключ доступа.</b> Укажите ваш ключ доступа. Для работы API ключ должен иметь положительный баланс.</td></tr>
+        <tr><td><code>u</code></td><td><b>URL объявления.</b> Ссылка на объявление. Рекомендуется использовать <code>urlencode</code>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3>Данные ответа</h3>
+    <table>
+      <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
+      <tbody>
+        <tr><td><code>status</code></td><td>string</td><td>Статус обработки: <code>searching</code> — поиск; <code>processed XX%</code> — обработка; <code>done</code> — завершено; <code>error</code> — ошибка.</td></tr>
+        <tr><td><code>ID</code></td><td>integer</td><td>ID объявления в источнике.</td></tr>
+        <tr><td><code>api_id</code></td><td>integer</td><td>ID объявления Pixeloff.</td></tr>
+        <tr><td><code>title</code></td><td>string</td><td>Заголовок объявления.</td></tr>
+        <tr><td><code>address</code></td><td>string</td><td>Адрес указанный в объявлении.</td></tr>
+        <tr><td><code>parameters</code></td><td>array</td><td>Массив параметров объявления.</td></tr>
+        <tr><td><code>description</code></td><td>string</td><td>Описание из объявления.</td></tr>
+        <tr><td><code>price</code></td><td>integer</td><td>Стоимость указанная в объявлении.</td></tr>
+        <tr><td><code>photos</code></td><td>array</td><td>Массив очищенных фотографий.</td></tr>
+        <tr><td><code>balance</code></td><td>integer</td><td>Ваш баланс (остаток объявлений).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3>Пример ответа (успех)</h3>
+    <pre><code>{
+  "status": "done",
+  "ID": "14442053**",
+  "api_id": "12345**",
+  "title": "Комната 20 м² в 1-к, 3/5 эт.",
+  "address": "Тюменская обл., Тюмень, мкр Войновка, Станционная ул., 36А",
+  "parameters": {
+    "Площадь комнаты": "20 м²",
+    "Комнат в квартире": "1",
+    "Этаж": "3 из 5",
+    "Тип дома": "Кирпичный"
+  },
+  "description": "Продам комнату в общежитии блочного типа...",
+  "price": "1 200 000",
+  "photos": {
+    "1": "https://pixeloff.ru/photos/o01_4db6d3c0.../w/",
+    "2": "https://pixeloff.ru/photos/o01_544c0c26.../f/",
+    "3": "https://pixeloff.ru/photos/o01_928e13b5.../m/"
+  },
+  "balance": "455"
+}</code></pre>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3>Пример использования (PHP)</h3>
+    <pre><code>&lt;?php
+ini_set('max_execution_time', '300');
+
+$url = "https://www.avito.ru/..."; // Ссылка на объявление
+$pixeloff_key = "MY123KEY";        // Ваш ключ доступа
+$maxQuery = 100;
+$cnt = 0;
+
+function getPixeloff() {
+    global $url, $pixeloff_key;
+    $str = file_get_contents(
+        "https://pixeloff.ru/api/v2.php?k=$pixeloff_key&amp;u=" . urlencode($url)
+    );
+    return json_decode($str);
+}
+
+$json = getPixeloff();
+sleep(5);
+while (!$json-&gt;status || ($json-&gt;status != 'done' &amp;&amp; $json-&gt;status != 'error')) {
+    sleep(3);
+    $json = getPixeloff();
+    if ($cnt &gt; $maxQuery) {
+        die('TimeOut Error!');
+    } else {
+        $cnt++;
+    }
+}
+
+if ($json-&gt;status == 'done') {
+    echo $json-&gt;title . "&lt;br&gt;";
+    foreach ($json-&gt;photos as $val) {
+        echo "&lt;img src='$val' height='60'&gt;";
+    }
+}
+?&gt;</code></pre>
+    <div class="alert alert-info">
+      <b>Внимание!</b> Приведённый выше код работает долго — он посылает запрос на обработку
+      объявления и ожидает полного завершения. Если в объявлении много фотографий, обработка
+      займёт время. Позаботьтесь о параметре <code>max_execution_time</code>. Рекомендуем разбить
+      скрипт на две части: инициирующую обработку и принимающую результаты.
+    </div>
+    <div class="alert alert-info" style="margin-top:8px">
+      <b>Внимание!</b> Количество одновременных обработок ограничено! Нельзя запустить более 5 обработок
+      одновременно — организуйте на вашей стороне очередь. Если нужно больше параллельных обработок —
+      свяжитесь с поддержкой.
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3>Таблица ошибок</h3>
+    <table>
+      <thead><tr><th>Код</th><th>Описание</th><th>Вычет</th></tr></thead>
+      <tbody>
+        <tr><td><code>101</code></td><td>Не указан ваш ключ, в параметре 'k'</td><td>нет</td></tr>
+        <tr><td><code>102</code></td><td>Не указана ссылка на объявление, в параметре 'u'</td><td>нет</td></tr>
+        <tr><td><code>104</code></td><td>Ключ указанный в параметре 'k' не найден</td><td>нет</td></tr>
+        <tr><td><code>105</code></td><td>Отрицательный баланс ключа</td><td>нет</td></tr>
+        <tr><td><code>120</code></td><td>В параметре 'u' указана некорректная ссылка</td><td>нет</td></tr>
+        <tr><td><code>210</code></td><td>Объявление не найдено</td><td>нет</td></tr>
+        <tr><td><code>220</code></td><td>Не найдены фотографии в объявлении</td><td>да</td></tr>
+        <tr><td><code>225</code></td><td>При обработке фото произошла ошибка</td><td>нет</td></tr>
+        <tr><td><code>230</code></td><td>Объявление более не актуально</td><td>да</td></tr>
+        <tr><td><code>250</code></td><td>Неизвестная ошибка — обратитесь в поддержку</td><td>нет</td></tr>
+        <tr><td><code>300</code></td><td>Превышено количество одновременных обработок</td><td>нет</td></tr>
+        <tr><td><code>500</code></td><td>Технические неполадки. Повторите позднее...</td><td>нет</td></tr>
+        <tr><td><code>501</code></td><td>Технические неполадки с обработкой данного источника</td><td>нет</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card soft">
+    <h3>Важное предупреждение</h3>
+    <p>API предназначен исключительно для автоматизации и упрощения работы с объявлениями тех авторов,
+       которые дали вам согласие на обработку/копирование/размещение принадлежащих им текстовых и
+       фото материалов. Мы против любых нарушений прав владельцев интеллектуальной собственности!</p>
+    <p>Получая доступ, вы безоговорочно соглашаетесь с пользовательским соглашением, в рамках которого
+       вы не имеете права обрабатывать объявления и цифровые изображения, если вами не было получено
+       согласие их правообладателей!</p>
+  </div>
+
+  <div style="margin-top:20px">
+    <a href="/" class="btn btn-ghost">&larr; Вернуться на главную</a>
+  </div>
+</section>
+{% endblock %}

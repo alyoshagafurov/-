@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Виртуальное окружение
+.venv/
+venv/
+env/
+
+# Секреты и конфиг
+.env
+
+# База данных и результаты
+data/app.db
+data/results/*
+!data/results/.gitkeep
+
+# Логи
+*.log
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Временные файлы парсера
+/tmp/
+image/
+output_image/
+link_photo_avito.txt
+example.zip

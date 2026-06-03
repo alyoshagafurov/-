@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Кабинет — Pixeloff{% endblock %}
+
+{% block content %}
+<section class="section">
+  <h2>Личный кабинет</h2>
+  <div class="card" data-me-card>
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <div class="muted">{{ user.email }}</div>
+        <div data-me-tariff style="font-weight:600; margin-top:4px">—</div>
+      </div>
+      <div style="text-align:right">
+        <div data-me-remaining style="font-size:22px; font-weight:700">—</div>
+        <div class="muted" data-me-access>—</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Обработать объявление</h2>
+  <div data-process>
+    <div class="process-box" style="margin-top:0">
+      <input type="text" data-process-url placeholder="Вставьте ссылку на объявление">
+      <button class="btn" data-process-btn>Очистить</button>
+    </div>
+    <div class="result hidden" data-process-result></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>История обработок</h2>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Объявление</th><th>Источник</th><th>Фото</th><th>Статус</th><th></th></tr>
+      </thead>
+      <tbody data-jobs-body>
+        <tr><td colspan="6" class="muted">Загрузка…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

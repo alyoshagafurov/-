@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: photoclean
+      POSTGRES_PASSWORD: photoclean
+      POSTGRES_DB: photoclean
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U photoclean"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-change-me-please}
+      DATABASE_URL: postgresql+psycopg2://photoclean:photoclean@db:5432/photoclean
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin12345}
+      PARSER_MAX_WORKERS: ${PARSER_MAX_WORKERS:-8}
+      PARSER_PROXIES: ${PARSER_PROXIES:-}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - results:/app/data
+
+volumes:
+  pgdata:
+  results:

@@ -1,0 +1,24 @@
+# Web
+fastapi>=0.110
+uvicorn[standard]>=0.27
+jinja2>=3.1
+python-multipart>=0.0.9
+
+# Config / validation
+pydantic>=2.6
+pydantic-settings>=2.2
+email-validator>=2.1
+
+# Auth
+PyJWT>=2.8
+bcrypt>=4.1
+
+# Database
+SQLAlchemy>=2.0
+psycopg2-binary>=2.9   # used only when DATABASE_URL points to PostgreSQL
+
+# Parser / image processing
+requests>=2.31
+Pillow>=10.0
+opencv-python-headless>=4.9
+numpy>=1.26

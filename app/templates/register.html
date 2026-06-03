@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — Pixeloff{% endblock %}
+
+{% block content %}
+<form class="form" data-auth-form="register">
+  <h1>Регистрация</h1>
+  <div class="alert alert-error hidden" data-auth-error></div>
+  <div class="field">
+    <label>Email</label>
+    <input type="email" name="email" required autocomplete="email">
+  </div>
+  <div class="field">
+    <label>Пароль (минимум 6 символов)</label>
+    <input type="password" name="password" required minlength="6" autocomplete="new-password">
+  </div>
+  <button class="btn" type="submit">Зарегистрироваться</button>
+  <div class="form-foot">Уже есть аккаунт? <a href="/login">Войти</a></div>
+</form>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Админка — Pixeloff{% endblock %}
+
+{% block content %}
+<section class="section">
+  <h2>Администрирование</h2>
+  <div class="tabs">
+    <div class="tab active" data-tab="users">Пользователи</div>
+    <div class="tab" data-tab="tariffs">Тарифы</div>
+  </div>
+
+  <!-- ── Вкладка: Пользователи ── -->
+  <div data-tabpanel="users">
+    <div class="admin-grid">
+      <div>
+        <div class="toolbar">
+          <input type="text" data-user-search placeholder="Поиск по email…">
+          <button class="btn btn-ghost btn-sm" data-user-search-btn>Найти</button>
+        </div>
+        <div class="card" style="padding:0">
+          <table>
+            <thead><tr><th>Email</th><th>Тариф</th><th>Остаток</th><th>Статус</th></tr></thead>
+            <tbody data-users-body><tr><td colspan="4" class="muted">Загрузка…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" data-user-detail>
+          <p class="muted">Выберите пользователя слева, чтобы управлять доступом.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Вкладка: Тарифы ── -->
+  <div data-tabpanel="tariffs" class="hidden">
+    <div class="admin-grid">
+      <div>
+        <div class="card" style="padding:0">
+          <table>
+            <thead><tr><th>Название</th><th>Цена</th><th>Лимит</th><th>Дней</th><th></th></tr></thead>
+            <tbody data-tariffs-body><tr><td colspan="5" class="muted">Загрузка…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <div class="card stack">
+          <h3 style="margin:0">Тариф</h3>
+          <input type="hidden" data-tariff-id>
+          <div class="field"><label>Название</label><input type="text" data-tariff-name></div>
+          <div class="row">
+            <div class="field" style="flex:1"><label>Цена, ₽</label><input type="number" data-tariff-price value="0"></div>
+            <div class="field" style="flex:1"><label>Лимит (0 = безлимит)</label><input type="number" data-tariff-limit value="0"></div>
+            <div class="field" style="flex:1"><label>Дней</label><input type="number" data-tariff-days value="30"></div>
+          </div>
+          <div class="field"><label>Описание</label><textarea data-tariff-desc rows="2"></textarea></div>
+          <div class="row">
+            <label><input type="checkbox" data-tariff-active checked> активен</label>
+            <input type="number" data-tariff-sort value="0" title="порядок" style="width:80px; padding:8px; border:1px solid var(--line); border-radius:8px">
+          </div>
+          <div class="row">
+            <button class="btn btn-sm" data-tariff-save>Сохранить</button>
+            <button class="btn btn-ghost btn-sm" data-tariff-new>Новый</button>
+            <button class="btn btn-danger btn-sm hidden" data-tariff-delete>Удалить</button>
+          </div>
+          <div class="alert alert-ok hidden" data-tariff-msg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
