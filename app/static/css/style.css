@@ -193,6 +193,7 @@ tbody tr:hover { background: var(--soft); cursor: default; }
 .info-tab-content ol, .info-tab-content ul { margin: 0 0 12px 20px; color: var(--muted); line-height: 1.75; }
 .info-tab-content ol li, .info-tab-content ul li { margin-bottom: 4px; }
 .info-tab-content a { color: var(--accent); font-weight: 500; }
+.info-tab-content .btn { color: #fff; }
 
 /* ── Code / pre ── */
 pre { background: #1e1e2e; color: #cdd6f4; border-radius: var(--radius); padding: 16px 18px;
