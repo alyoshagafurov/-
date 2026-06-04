@@ -195,8 +195,13 @@ document.querySelectorAll("[data-process]").forEach((root) => {
         <h3>${escapeHtml(t.name)}</h3>
         <div class="price">${t.price} ₽ <span>/ ${t.duration_days} дн.</span></div>
         <p>${escapeHtml(t.description || "")}</p>
-        <div class="muted">${t.limit_count === 0 ? "без лимита" : t.limit_count + " обработок"}</div>
+        <div class="muted" style="margin-bottom:14px">${t.limit_count === 0 ? "без лимита" : t.limit_count + " обработок"}</div>
+        <button class="btn" data-pay="${t.id}" data-pay-name="${escapeHtml(t.name)}">Оплатить</button>
       </div>`).join("");
+
+    // кнопки «Оплатить» → открыть модалку
+    wrap.querySelectorAll("[data-pay]").forEach((b) =>
+      b.addEventListener("click", () => openPayModal(b.getAttribute("data-pay"), b.getAttribute("data-pay-name"))));
 
     const sel = document.querySelector("[data-calc-tariff]");
     const res = document.querySelector("[data-calc-result]");
@@ -213,13 +218,58 @@ document.querySelectorAll("[data-process]").forEach((root) => {
       update();
     }
   });
+
+  // ── Модалка заявки на оплату ──
+  const modal = document.querySelector("[data-pay-modal]");
+  if (!modal) return;
+  const elTariff = modal.querySelector("[data-pay-tariff]");
+  const elErr = modal.querySelector("[data-pay-error]");
+  const elOk = modal.querySelector("[data-pay-ok]");
+  const elForm = modal.querySelector("[data-pay-form]");
+  const elEmail = modal.querySelector("[data-pay-email]");
+  const elPhone = modal.querySelector("[data-pay-phone]");
+  let payTariffId = null;
+
+  // префилл email если пользователь залогинен
+  api("/api/me").then(({ ok, data }) => { if (ok && data.email) elEmail.value = data.email; });
+
+  window.openPayModal = (id, name) => {
+    payTariffId = id;
+    elTariff.textContent = "Тариф: " + name;
+    elErr.classList.add("hidden");
+    elOk.classList.add("hidden");
+    elForm.classList.remove("hidden");
+    modal.classList.remove("hidden");
+  };
+  const closePay = () => modal.classList.add("hidden");
+  modal.querySelector("[data-pay-close]").addEventListener("click", closePay);
+  modal.addEventListener("click", (e) => { if (e.target === modal) closePay(); });
+
+  modal.querySelector("[data-pay-submit]").addEventListener("click", async () => {
+    elErr.classList.add("hidden");
+    const email = elEmail.value.trim();
+    const phone = elPhone.value.trim();
+    if (!email || !phone) { elErr.textContent = "Заполните email и телефон"; elErr.classList.remove("hidden"); return; }
+    const { ok, data } = await api("/api/payment-request", {
+      method: "POST", body: { tariff_id: payTariffId ? parseInt(payTariffId, 10) : null, email, phone },
+    });
+    if (ok) {
+      elForm.classList.add("hidden");
+      elOk.textContent = "Заявка отправлена! Мы свяжемся с вами для активации тарифа.";
+      elOk.classList.remove("hidden");
+    } else {
+      elErr.textContent = detailToText(data && data.detail) || "Ошибка отправки";
+      elErr.classList.remove("hidden");
+    }
+  });
 })();
 
 // ── 5. Admin ───────────────────────────────────────────────
 (() => {
   const usersList = document.querySelector("[data-users-list]");
   const tariffsList = document.querySelector("[data-tariffs-list]");
-  if (!usersList && !tariffsList) return;
+  const requestsList = document.querySelector("[data-requests-list]");
+  if (!usersList && !tariffsList && !requestsList) return;
 
   // tabs
   document.querySelectorAll(".tab").forEach((tab) => {
@@ -360,6 +410,47 @@ document.querySelectorAll("[data-process]").forEach((root) => {
     });
 
     loadTariffs();
+  }
+
+  // ── Заявки на оплату ──
+  if (requestsList) {
+    const badge = document.querySelector("[data-req-badge]");
+
+    const loadRequests = async () => {
+      const { ok, data } = await api("/api/admin/payment-requests");
+      if (!ok) return;
+      // бейдж с количеством новых
+      if (badge) {
+        if (data.new_count > 0) { badge.textContent = data.new_count; badge.classList.remove("hidden"); }
+        else badge.classList.add("hidden");
+      }
+      if (!data.items.length) { requestsList.innerHTML = '<p class="muted">Заявок пока нет</p>'; return; }
+      requestsList.innerHTML = data.items.map((r) => `
+        <div class="req-card ${r.status === "new" ? "new" : ""}">
+          <div class="info">
+            <div class="top">${escapeHtml(r.tariff_name || "Тариф не указан")} ${r.status === "new" ? '<span class="badge badge-processing">новая</span>' : '<span class="badge badge-done">обработана</span>'}</div>
+            <div class="sub">${escapeHtml(r.email)} · ${escapeHtml(r.phone)} · ${formatDate(r.created_at)}</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost btn-sm" data-req-done="${r.id}">${r.status === "new" ? "✓ Выполнено" : "↺ Вернуть"}</button>
+            <button class="btn btn-danger btn-sm" data-req-del="${r.id}">✕</button>
+          </div>
+        </div>`).join("");
+
+      requestsList.querySelectorAll("[data-req-done]").forEach((b) =>
+        b.addEventListener("click", async () => {
+          await api(`/api/admin/payment-requests/${b.getAttribute("data-req-done")}/done`, { method: "POST" });
+          loadRequests();
+        }));
+      requestsList.querySelectorAll("[data-req-del]").forEach((b) =>
+        b.addEventListener("click", async () => {
+          if (!confirm("Удалить заявку?")) return;
+          await api(`/api/admin/payment-requests/${b.getAttribute("data-req-del")}`, { method: "DELETE" });
+          loadRequests();
+        }));
+    };
+
+    loadRequests();
   }
 })();
 

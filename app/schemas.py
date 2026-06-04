@@ -55,3 +55,10 @@ class TariffIn(BaseModel):
     description: str = ""
     is_active: bool = True
     sort_order: int = 0
+
+
+# ── Payment requests ───────────────────────────────────────
+class PaymentRequestIn(BaseModel):
+    tariff_id: int | None = None
+    email: EmailStr
+    phone: str = Field(min_length=5, max_length=40)

@@ -45,9 +45,12 @@ a:hover { text-decoration: underline; }
   display: flex; align-items: center; justify-content: space-between;
   height: 64px;
 }
-.brand { display: flex; align-items: center; text-decoration: none; }
+.brand { display: flex; flex-direction: column; justify-content: center; line-height: 1; gap: 3px; text-decoration: none; }
 .brand:hover { text-decoration: none; }
-.brand-logo { height: 40px; width: 131px; display: block; object-fit: contain; }
+.brand-text { font-size: 25px; font-weight: 800; letter-spacing: -.5px; }
+.brand-1 { color: var(--fg); }
+.brand-2 { color: var(--accent); }
+.brand-desc { font-size: 9.5px; color: var(--muted); letter-spacing: 1.4px; text-transform: uppercase; font-weight: 600; }
 
 /* Десктоп nav */
 .nav-desktop { display: flex; align-items: center; gap: 24px; }
@@ -125,15 +128,18 @@ a:hover { text-decoration: underline; }
 }
 .soft { background: var(--soft); }
 
-/* ── Process widget ── */
+/* ── Process widget (ключевой элемент — выделен) ── */
 .process-box {
-  display: flex; gap: 10px; max-width: 720px; margin: 24px auto 0;
+  display: flex; gap: 10px; max-width: 760px; margin: 28px auto 0;
+  background: #fff; padding: 8px; border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(15,118,110,.18); border: 2px solid var(--accent);
 }
 .process-box input[type=text] {
-  flex: 1; padding: 13px 15px; font-size: 15px;
-  border: 1px solid var(--line); border-radius: var(--radius); outline: none;
+  flex: 1; padding: 15px 18px; font-size: 16px;
+  border: none; border-radius: 10px; outline: none; background: transparent;
 }
-.process-box input[type=text]:focus { border-color: var(--accent); }
+.process-box input[type=text]::placeholder { color: #9ca3af; }
+.process-box .btn { padding: 15px 28px; font-size: 16px; border-radius: 10px; }
 
 .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 8px; }
 .step { padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); }
@@ -271,6 +277,76 @@ pre { background: #1e1e2e; color: #cdd6f4; border-radius: var(--radius); padding
       overflow-x: auto; font-size: 13px; line-height: 1.6; margin: 10px 0; }
 code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .92em; }
 p code, td code, li code { background: var(--soft); padding: 2px 6px; border-radius: 5px; color: var(--fg); }
+
+/* ── Демо-фото с мигающим watermark ── */
+.demo { text-align: center; }
+.demo-photo {
+  position: relative; max-width: 720px; margin: 0 auto; border-radius: var(--radius);
+  overflow: hidden; border: 1px solid var(--line); line-height: 0;
+}
+.demo-photo img { width: 100%; display: block; }
+.demo-wm {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 6px 40px; pointer-events: none; transform: rotate(-18deg) scale(1.25);
+}
+.demo-wm span {
+  font-size: clamp(28px, 6vw, 56px); font-weight: 900; color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,.55); letter-spacing: 2px;
+  animation: wm-blink 1.3s ease-in-out infinite; opacity: .85;
+}
+.demo-wm span:nth-child(2) { animation-delay: .25s; }
+.demo-wm span:nth-child(3) { animation-delay: .5s; }
+.demo-wm span:nth-child(4) { animation-delay: .75s; }
+.demo-wm span:nth-child(5) { animation-delay: 1s; }
+@keyframes wm-blink { 0%, 100% { opacity: .12; } 50% { opacity: .9; } }
+.demo-caption { color: var(--muted); font-size: 14px; margin-top: 14px; }
+
+/* ── Контакт-кнопки ── */
+.contact-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.contact-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px;
+  border-radius: 10px; font-weight: 600; color: #fff; font-size: 15px;
+  text-decoration: none; transition: opacity .15s;
+}
+.contact-btn:hover { opacity: .88; text-decoration: none; color: #fff; }
+.contact-btn svg { width: 20px; height: 20px; fill: currentColor; }
+.contact-btn.tg { background: #229ED9; }
+.contact-btn.wa { background: #25D366; }
+.contact-btn.phone { background: var(--accent); }
+.contact-phone { font-size: 20px; font-weight: 700; color: var(--fg); margin: 6px 0; }
+
+/* ── Модалка ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 1000;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal {
+  background: #fff; border-radius: 14px; padding: 26px; max-width: 420px; width: 100%;
+  position: relative; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+.modal h3 { margin: 0 0 6px; font-size: 20px; }
+.modal-close {
+  position: absolute; top: 12px; right: 14px; background: none; border: none;
+  font-size: 26px; line-height: 1; color: var(--muted); cursor: pointer;
+}
+.modal-close:hover { color: var(--fg); }
+.modal .btn { width: 100%; margin-top: 6px; }
+
+/* ── Карточки заявок (админка) ── */
+.req-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 8px;
+}
+.req-card.new { border-color: var(--accent); background: var(--accent-soft); }
+.req-card .info { min-width: 0; }
+.req-card .info .top { font-weight: 600; font-size: 14px; }
+.req-card .info .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.req-card .actions { display: flex; gap: 6px; flex-shrink: 0; }
+.tab .tab-badge {
+  display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 6px;
+  background: var(--danger); color: #fff; border-radius: 999px; font-size: 11px;
+  line-height: 18px; text-align: center; font-weight: 700;
+}
 
 /* ── Footer ── */
 .site-footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 24px 0; color: var(--muted); font-size: 13px; text-align: center; }

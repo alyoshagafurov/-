@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..deps import require_admin
-from ..models import Comment, Job, Tariff, User, utcnow
+from ..models import Comment, Job, PaymentRequest, Tariff, User, utcnow
 from ..schemas import AssignTariffIn, CommentIn, TariffIn
 
 router = APIRouter(prefix="/api/admin", tags=["admin"], dependencies=[Depends(require_admin)])
@@ -208,5 +208,46 @@ def delete_tariff(tariff_id: int, db: Session = Depends(get_db)):
     for u in list(tariff.users):
         u.tariff_id = None
     db.delete(tariff)
+    db.commit()
+    return {"ok": True}
+
+
+# ── Заявки на оплату ───────────────────────────────────────
+def _request_dict(r: PaymentRequest) -> dict:
+    return {
+        "id": r.id,
+        "tariff_name": r.tariff_name,
+        "email": r.email,
+        "phone": r.phone,
+        "status": r.status,
+        "created_at": r.created_at.isoformat() if r.created_at else None,
+    }
+
+
+@router.get("/payment-requests")
+def list_payment_requests(db: Session = Depends(get_db)):
+    rows = db.scalars(
+        select(PaymentRequest).order_by(PaymentRequest.id.desc()).limit(200)
+    ).all()
+    new_count = sum(1 for r in rows if r.status == "new")
+    return {"items": [_request_dict(r) for r in rows], "new_count": new_count}
+
+
+@router.post("/payment-requests/{req_id}/done")
+def mark_request_done(req_id: int, db: Session = Depends(get_db)):
+    req = db.get(PaymentRequest, req_id)
+    if not req:
+        raise HTTPException(404, "Заявка не найдена")
+    req.status = "done" if req.status == "new" else "new"
+    db.commit()
+    return _request_dict(req)
+
+
+@router.delete("/payment-requests/{req_id}")
+def delete_request(req_id: int, db: Session = Depends(get_db)):
+    req = db.get(PaymentRequest, req_id)
+    if not req:
+        raise HTTPException(404, "Заявка не найдена")
+    db.delete(req)
     db.commit()
     return {"ok": True}

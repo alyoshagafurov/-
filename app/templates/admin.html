@@ -7,6 +7,7 @@
   <div class="tabs">
     <div class="tab active" data-tab="users">Пользователи</div>
     <div class="tab" data-tab="tariffs">Тарифы</div>
+    <div class="tab" data-tab="requests">Заявки<span class="tab-badge hidden" data-req-badge></span></div>
   </div>
 
   <!-- ── Вкладка: Пользователи ── -->
@@ -51,6 +52,15 @@
         <button class="btn btn-danger btn-sm hidden" data-tariff-delete>Удалить</button>
       </div>
       <div class="alert alert-ok hidden" data-tariff-msg></div>
+    </div>
+  </div>
+
+  <!-- ── Вкладка: Заявки на оплату ── -->
+  <div data-tabpanel="requests" class="hidden">
+    <p class="muted" style="margin-bottom:12px">Заявки на оплату тарифов. Свяжитесь с клиентом,
+       примите оплату и активируйте тариф во вкладке «Пользователи».</p>
+    <div data-requests-list>
+      <p class="muted">Загрузка…</p>
     </div>
   </div>
 </section>

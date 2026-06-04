@@ -37,9 +37,21 @@ class Settings(BaseSettings):
     default_free_limit: int = 3
     default_free_days: int = 7
 
+    # Email (заявки на оплату). Если smtp_host пуст — письма не шлются,
+    # заявки всё равно сохраняются в админке.
+    smtp_host: str = ""
+    smtp_port: int = 465
+    smtp_user: str = ""
+    smtp_password: str = ""
+    owner_email: str = ""  # куда слать уведомления о заявках
+
     @property
     def proxy_list(self) -> list[str]:
         return [p.strip() for p in self.parser_proxies.split(",") if p.strip()]
+
+    @property
+    def mail_enabled(self) -> bool:
+        return bool(self.smtp_host and self.smtp_user and self.owner_email)
 
 
 @lru_cache

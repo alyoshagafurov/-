@@ -5,7 +5,7 @@
 {% block content %}
 <section class="hero" style="padding-bottom:10px">
   <h1>Тарифы и доступ</h1>
-  <p>Выберите подходящий объём обработок. Доступ выдаётся администратором после оплаты.</p>
+  <p>Выберите подходящий объём обработок и оставьте заявку — администратор активирует доступ.</p>
 </section>
 
 <section class="section">
@@ -23,4 +23,28 @@
     </div>
   </div>
 </section>
+
+<!-- ── Модалка заявки на оплату ── -->
+<div class="modal-overlay hidden" data-pay-modal>
+  <div class="modal">
+    <button class="modal-close" data-pay-close aria-label="Закрыть">&times;</button>
+    <h3>Заявка на оплату</h3>
+    <p class="muted" data-pay-tariff style="margin-bottom:16px">—</p>
+
+    <div class="alert alert-error hidden" data-pay-error></div>
+    <div class="alert alert-ok hidden" data-pay-ok></div>
+
+    <div data-pay-form>
+      <div class="field">
+        <label>Email (зарегистрированный в системе)</label>
+        <input type="email" data-pay-email placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>Номер телефона</label>
+        <input type="tel" data-pay-phone placeholder="+7 ___ ___-__-__">
+      </div>
+      <button class="btn" data-pay-submit>Отправить</button>
+    </div>
+  </div>
+</div>
 {% endblock %}

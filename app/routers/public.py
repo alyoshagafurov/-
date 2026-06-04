@@ -1,11 +1,13 @@
-"""Публичные/пользовательские эндпоинты: список тарифов и профиль."""
-from fastapi import APIRouter, Depends
+"""Публичные/пользовательские эндпоинты: список тарифов, профиль, заявки."""
+from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..deps import get_current_user
-from ..models import Tariff, User
+from ..models import PaymentRequest, Tariff, User
+from ..schemas import PaymentRequestIn
+from ..services.mailer import send_payment_request_email
 
 router = APIRouter(prefix="/api", tags=["public"])
 
@@ -28,6 +30,32 @@ def list_tariffs(db: Session = Depends(get_db)):
         }
         for t in rows
     ]
+
+
+@router.post("/payment-request")
+def create_payment_request(
+    data: PaymentRequestIn,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    tariff_name = ""
+    if data.tariff_id:
+        tariff = db.get(Tariff, data.tariff_id)
+        if tariff:
+            tariff_name = tariff.name
+
+    req = PaymentRequest(
+        tariff_id=data.tariff_id,
+        tariff_name=tariff_name,
+        email=data.email.lower(),
+        phone=data.phone.strip(),
+    )
+    db.add(req)
+    db.commit()
+
+    # письмо владельцу — в фоне, не блокирует ответ
+    background.add_task(send_payment_request_email, tariff_name, data.email.lower(), data.phone.strip())
+    return {"ok": True}
 
 
 @router.get("/me")

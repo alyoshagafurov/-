@@ -124,3 +124,17 @@ class Comment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     user: Mapped["User"] = relationship(back_populates="comments")
+
+
+class PaymentRequest(Base):
+    """Заявка на оплату тарифа (платёжка ещё не подключена — приходит в админку)."""
+
+    __tablename__ = "payment_requests"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tariff_id: Mapped[int | None] = mapped_column(ForeignKey("tariffs.id"), nullable=True)
+    tariff_name: Mapped[str] = mapped_column(String(120), default="")
+    email: Mapped[str] = mapped_column(String(255), index=True)
+    phone: Mapped[str] = mapped_column(String(40))
+    status: Mapped[str] = mapped_column(String(20), default="new", index=True)  # new | done
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
